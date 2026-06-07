@@ -228,10 +228,10 @@ const AboutPage = () => {
               className="text-base sm:text-lg lg:text-xl text-gray-400 leading-relaxed text-justify pb-4 sm:pb-0"
               data-aos="fade-right"
               data-aos-duration="1500">
-              Saya adalah pelajar Rekaya Perangkat Lunak yang berfokus pada
-              pengembangan Front-End. Saya berfokus pada penciptaan pengalaman
-              digital yang menarik dan selalu berupaya memberikan solusi terbaik
-              dalam setiap proyek yang saya kerjakan.
+              Saya adalah pelajar Jurusan Rekaya Perangkat Lunak yang berfokus
+              pada pengembangan Front-End. Saya berfokus pada penciptaan
+              pengalaman digital yang menarik dan selalu berupaya memberikan
+              solusi terbaik dalam setiap proyek yang saya kerjakan.
             </p>
 
             {/* Quote Section */}
@@ -261,7 +261,7 @@ const AboutPage = () => {
 
             <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-4 lg:px-0 w-full">
               <a
-                href="https://drive.google.com/drive/folders/1BOm51Grsabb3zj6Xk27K-iRwI1zITcpo"
+                href="https://drive.google.com/drive/folders/1vepzEmMx1L9-4X_Snz60eqEPPV39ugBD?usp=sharing"
                 className="w-full lg:w-auto">
                 <button
                   data-aos="fade-up"

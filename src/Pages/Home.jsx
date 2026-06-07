@@ -92,7 +92,7 @@ const TECH_STACK = ["React", "Javascript", "Node.js", "Tailwind"];
 const SOCIAL_LINKS = [
   {
     icon: Github,
-    link: "https://github.com/alyaa30",
+    link: "https://github.com/ayacinnamon",
     label: "GitHub Profile",
   },
   {
@@ -188,7 +188,7 @@ const Home = () => {
             "jobTitle": "Frontend Developer",
             "url": "https://alyalatifa.com",
             "sameAs": [
-              "https://github.com/alyaa30",
+              "https://github.com/ayacinnamon",
               "https://www.linkedin.com/in/allfiyaaa/",
               "https://www.instagram.com/_allfiyaaa/"
             ]
