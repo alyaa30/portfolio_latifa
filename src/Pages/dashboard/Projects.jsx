@@ -77,30 +77,30 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
   return (
     <Card>
       <div className="p-4 flex flex-col h-full">
-        {project.Img && (
+        {project.img && (
           <div className="w-full aspect-[16/8] rounded-xl mb-4 border border-white/8 overflow-hidden bg-white/5">
             {!imgLoaded && (
               <div className="w-full h-full animate-pulse bg-white/5" />
             )}
             <img
-              src={project.Img}
-              alt={project.Title}
+              src={project.img}
+              alt={project.title}
               onLoad={() => setImgLoaded(true)}
               className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? "opacity-100" : "opacity-0 absolute"}`}
             />
           </div>
         )}
         <h3 className="font-semibold text-white text-sm mb-1">
-          {project.Title}
+          {project.title}
         </h3>
-        {project.Description && (
+        {project.description && (
           <p className="text-gray-400 text-xs mb-3 line-clamp-2 leading-relaxed">
-            {project.Description}
+            {project.description}
           </p>
         )}
-        {project.TechStack?.length > 0 && (
+        {project.tech_stack?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
-            {project.TechStack.map((t) => (
+            {project.tech_stack.map((t) => (
               <span
                 key={t}
                 className="px-2 py-0.5 rounded-full bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 text-xs"
@@ -112,9 +112,9 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
         )}
         <div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-white/8">
           <div className="flex gap-2">
-            {project.Link && (
+            {project.link && (
               <a
-                href={project.Link}
+                href={project.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
@@ -122,9 +122,9 @@ const ProjectCard = ({ project, onDelete, onEdit }) => {
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
             )}
-            {project.Github && (
+            {project.github && (
               <a
-                href={project.Github}
+                href={project.github}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-1.5 rounded-lg border border-white/10 text-gray-500 hover:text-white hover:border-white/20 transition-colors"
@@ -165,7 +165,6 @@ const Modal = ({ title, onClose, children }) => (
     >
       <div className="absolute -inset-0.5 bg-gradient-to-r from-[#6366f1] to-[#a855f7] rounded-2xl blur opacity-20 pointer-events-none" />
       <div className="relative bg-[#0a0a1a] border border-white/12 rounded-2xl flex flex-col overflow-hidden">
-        {/* Fixed header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/8 shrink-0">
           <h2 className="text-base font-semibold text-white">{title}</h2>
           <button
@@ -176,7 +175,6 @@ const Modal = ({ title, onClose, children }) => (
             <X className="w-5 h-5" />
           </button>
         </div>
-        {/* Scrollable content */}
         <div className="overflow-y-auto flex-1">{children}</div>
       </div>
     </div>
@@ -191,19 +189,20 @@ const ProjectForm = ({
   uploading,
 }) => {
   const [form, setForm] = useState({
-    Title: initial?.Title || "",
-    Description: initial?.Description || "",
-    TechStack: Array.isArray(initial?.TechStack)
-      ? initial.TechStack.join(", ")
-      : initial?.TechStack || "",
-    Features: Array.isArray(initial?.Features)
-      ? initial.Features.join(", ")
-      : initial?.Features || "",
-    Link: initial?.Link || "",
-    Github: initial?.Github || "",
+    title: initial?.title || "",
+    description: initial?.description || "",
+    tech_stack: Array.isArray(initial?.tech_stack)
+      ? initial.tech_stack.join(", ")
+      : initial?.tech_stack || "",
+    features: Array.isArray(initial?.features)
+      ? initial.features.join(", ")
+      : initial?.features || "",
+    link: initial?.link || "",
+    github: initial?.github || "",
+    is_published: initial?.is_published ?? true,
   });
   const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(initial?.Img || null);
+  const [preview, setPreview] = useState(initial?.img || null);
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
@@ -226,8 +225,8 @@ const ProjectForm = ({
         <div className="sm:col-span-2">
           <InputField
             label="Project Title"
-            value={form.Title}
-            onChange={set("Title")}
+            value={form.title}
+            onChange={set("title")}
             placeholder="e.g. My Portfolio Website"
             required
           />
@@ -238,8 +237,8 @@ const ProjectForm = ({
             Description
           </label>
           <textarea
-            value={form.Description}
-            onChange={set("Description")}
+            value={form.description}
+            onChange={set("description")}
             placeholder="Describe what this project does, its purpose, and impact..."
             rows={3}
             className="w-full bg-[#0d0d22] border border-white/10 rounded-xl px-4 py-2.5 text-gray-200 placeholder-gray-600 text-sm outline-none focus:border-indigo-500/60 focus:ring-1 focus:ring-indigo-500/20 transition-all resize-none"
@@ -248,28 +247,41 @@ const ProjectForm = ({
 
         <InputField
           label="Tech Stack (comma separated)"
-          value={form.TechStack}
-          onChange={set("TechStack")}
+          value={form.tech_stack}
+          onChange={set("tech_stack")}
           placeholder="e.g. React, Tailwind, Supabase"
         />
         <InputField
           label="Key Features (comma separated)"
-          value={form.Features}
-          onChange={set("Features")}
+          value={form.features}
+          onChange={set("features")}
           placeholder="e.g. Auth, Dark mode, REST API"
         />
         <InputField
           label="Live URL"
-          value={form.Link}
-          onChange={set("Link")}
+          value={form.link}
+          onChange={set("link")}
           placeholder="https://yourproject.com"
         />
         <InputField
           label="GitHub URL"
-          value={form.Github}
-          onChange={set("Github")}
+          value={form.github}
+          onChange={set("github")}
           placeholder="https://github.com/username/repo"
         />
+
+        <div className="sm:col-span-2 flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="is_published"
+            checked={form.is_published}
+            onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))}
+            className="w-4 h-4 rounded accent-indigo-500"
+          />
+          <label htmlFor="is_published" className="text-sm text-gray-300 cursor-pointer">
+            Published (tampil di portfolio)
+          </label>
+        </div>
 
         <div className="sm:col-span-2 space-y-1.5">
           <label className="text-xs text-indigo-300/70 uppercase tracking-wider font-medium">
@@ -371,7 +383,6 @@ export default function Projects() {
     return data.publicUrl;
   };
 
-  // FIX 1: Tambah error handling di handleCreate
   const handleCreate = async (form, file) => {
     setUploading(true);
     setErrorMsg("");
@@ -380,17 +391,14 @@ export default function Projects() {
       if (file) imgUrl = await uploadImage(file);
 
       const { error } = await supabase.from("projects").insert({
-        Title: form.Title,
-        Description: form.Description,
-        Img: imgUrl,
-        TechStack: form.TechStack.split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        Features: form.Features.split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        Link: form.Link,
-        Github: form.Github,
+        title: form.title,
+        description: form.description,
+        img: imgUrl,
+        tech_stack: form.tech_stack.split(",").map((s) => s.trim()).filter(Boolean),
+        features: form.features.split(",").map((s) => s.trim()).filter(Boolean),
+        link: form.link,
+        github: form.github,
+        is_published: form.is_published,
       });
 
       if (error) {
@@ -409,28 +417,24 @@ export default function Projects() {
     }
   };
 
-  // FIX 1: Tambah error handling di handleEdit
   const handleEdit = async (form, file) => {
     setUploading(true);
     setErrorMsg("");
     try {
-      let imgUrl = editProject.Img || "";
+      let imgUrl = editProject.img || "";
       if (file) imgUrl = await uploadImage(file);
 
       const { error } = await supabase
         .from("projects")
         .update({
-          Title: form.Title,
-          Description: form.Description,
-          Img: imgUrl,
-          TechStack: form.TechStack.split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-          Features: form.Features.split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-          Link: form.Link,
-          Github: form.Github,
+          title: form.title,
+          description: form.description,
+          img: imgUrl,
+          tech_stack: form.tech_stack.split(",").map((s) => s.trim()).filter(Boolean),
+          features: form.features.split(",").map((s) => s.trim()).filter(Boolean),
+          link: form.link,
+          github: form.github,
+          is_published: form.is_published,
         })
         .eq("id", editProject.id);
 
@@ -462,7 +466,6 @@ export default function Projects() {
   };
 
   return (
-    // FIX 2: Perbaiki typo className dari "space-y-6z" menjadi "space-y-6"
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
