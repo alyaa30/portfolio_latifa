@@ -337,13 +337,18 @@ export default function Projects() {
   const [showCreate, setShowCreate] = useState(false);
   const [editProject, setEditProject] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const fetchProjects = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
+    if (error) {
+      console.error("Fetch error:", error);
+      setErrorMsg("Gagal memuat projects: " + error.message);
+    }
     setProjects(data || []);
     setLoading(false);
   };
@@ -354,42 +359,27 @@ export default function Projects() {
 
   const uploadImage = async (f) => {
     const fileName = `${Date.now()}-${f.name}`;
-    await supabase.storage.from("project-images").upload(fileName, f);
+    const { error: uploadError } = await supabase.storage
+      .from("project-images")
+      .upload(fileName, f);
+    if (uploadError) {
+      throw new Error("Upload gambar gagal: " + uploadError.message);
+    }
     const { data } = supabase.storage
       .from("project-images")
       .getPublicUrl(fileName);
     return data.publicUrl;
   };
 
+  // FIX 1: Tambah error handling di handleCreate
   const handleCreate = async (form, file) => {
     setUploading(true);
-    let imgUrl = "";
-    if (file) imgUrl = await uploadImage(file);
-    await supabase.from("projects").insert({
-      Title: form.Title,
-      Description: form.Description,
-      Img: imgUrl,
-      TechStack: form.TechStack.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      Features: form.Features.split(",")
-        .map((s) => s.trim())
-        .filter(Boolean),
-      Link: form.Link,
-      Github: form.Github,
-    });
-    setShowCreate(false);
-    setUploading(false);
-    fetchProjects();
-  };
+    setErrorMsg("");
+    try {
+      let imgUrl = "";
+      if (file) imgUrl = await uploadImage(file);
 
-  const handleEdit = async (form, file) => {
-    setUploading(true);
-    let imgUrl = editProject.Img || "";
-    if (file) imgUrl = await uploadImage(file);
-    await supabase
-      .from("projects")
-      .update({
+      const { error } = await supabase.from("projects").insert({
         Title: form.Title,
         Description: form.Description,
         Img: imgUrl,
@@ -401,21 +391,79 @@ export default function Projects() {
           .filter(Boolean),
         Link: form.Link,
         Github: form.Github,
-      })
-      .eq("id", editProject.id);
-    setEditProject(null);
-    setUploading(false);
-    fetchProjects();
+      });
+
+      if (error) {
+        console.error("Insert error:", error);
+        setErrorMsg("Gagal menyimpan project: " + error.message);
+        return;
+      }
+
+      setShowCreate(false);
+      fetchProjects();
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || "Terjadi kesalahan.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // FIX 1: Tambah error handling di handleEdit
+  const handleEdit = async (form, file) => {
+    setUploading(true);
+    setErrorMsg("");
+    try {
+      let imgUrl = editProject.Img || "";
+      if (file) imgUrl = await uploadImage(file);
+
+      const { error } = await supabase
+        .from("projects")
+        .update({
+          Title: form.Title,
+          Description: form.Description,
+          Img: imgUrl,
+          TechStack: form.TechStack.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          Features: form.Features.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
+          Link: form.Link,
+          Github: form.Github,
+        })
+        .eq("id", editProject.id);
+
+      if (error) {
+        console.error("Update error:", error);
+        setErrorMsg("Gagal mengupdate project: " + error.message);
+        return;
+      }
+
+      setEditProject(null);
+      fetchProjects();
+    } catch (err) {
+      console.error(err);
+      setErrorMsg(err.message || "Terjadi kesalahan.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const deleteProject = async (id) => {
     if (!confirm("Delete this project?")) return;
-    await supabase.from("projects").delete().eq("id", id);
+    const { error } = await supabase.from("projects").delete().eq("id", id);
+    if (error) {
+      console.error("Delete error:", error);
+      setErrorMsg("Gagal menghapus project: " + error.message);
+      return;
+    }
     fetchProjects();
   };
 
   return (
-    <div className="space-y-6z ">
+    // FIX 2: Perbaiki typo className dari "space-y-6z" menjadi "space-y-6"
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6 flex-wrap">
         <div className="flex items-center gap-3">
@@ -446,6 +494,16 @@ export default function Projects() {
           </div>
         </button>
       </div>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <div className="flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-sm">
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg("")} className="shrink-0 hover:text-white transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Create Modal */}
       {showCreate && (
